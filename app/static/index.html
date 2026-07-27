@@ -1,1 +1,315 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111f"><link rel="manifest" href="/static/manifest.json"><title>Crypto Copilot IA</title><link rel="stylesheet" href="/static/style.css"></head><body><div id="login" class="center"><form class="login-card" id="loginForm"><div class="logo">◈</div><h1>Crypto Copilot IA</h1><p>Votre analyste crypto personnel</p><input id="user" placeholder="Identifiant" required><input id="pass" type="password" placeholder="Mot de passe" required><button>Se connecter</button><div id="loginErr" class="error"></div></form></div><div id="app" hidden><header><div><b>◈ Crypto Copilot IA</b><small>Application privée</small></div><button class="ghost" onclick="logout()">Déconnexion</button></header><nav><button class="active" data-tab="dashboard">Tableau de bord</button><button data-tab="capture">Capture TradingView</button><button data-tab="alerts">Alertes</button><button data-tab="journal">Journal</button></nav><main><section id="dashboard" class="tab active"><div class="hero"><span class="kicker">ANALYSE DU MARCHÉ</span><h2>Une décision expliquée, jamais un signal aveugle.</h2></div><div class="controls"><input id="symbol" value="BTCUSDT"><select id="interval"><option>5m</option><option selected>15m</option><option>1h</option><option>4h</option><option>1d</option></select><button onclick="runAnalysis()">Analyser</button></div><div id="loading" class="muted"></div><div id="result"></div></section><section id="capture" class="tab"><div class="panel"><h2>Analyser une capture TradingView</h2><input id="image" type="file" accept="image/png,image/jpeg,image/webp"><textarea id="question" rows="3">La bougie de confirmation est-elle validée ?</textarea><button onclick="uploadShot()">Analyser la capture</button><div id="visionResult" class="analysis-text"></div></div></section><section id="alerts" class="tab"><div class="panel"><div class="row"><h2>Alertes de confirmation</h2><button onclick="scanNow()">Vérifier maintenant</button></div><p class="muted">Notifications iPhone via Telegram.</p><div id="alertsList"></div></div></section><section id="journal" class="tab"><div class="panel"><h2>Journal de trading</h2><div id="tradesList"></div></div></section></main></div><script src="/static/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Crypto Copilot IA</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="manifest" href="manifest.json">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<header class="topbar">
+
+<div class="logo">
+
+<h1>
+🚀 Crypto Copilot IA
+</h1>
+
+<p>
+Votre analyste crypto personnel
+</p>
+
+</div>
+
+<div class="status">
+
+<span class="online"></span>
+
+Connecté
+
+</div>
+
+</header>
+
+<main class="dashboard">
+
+<section class="hero">
+
+<div class="hero-left">
+
+<h2>
+
+Bienvenue Pascaline 👋
+
+</h2>
+
+<p>
+
+Analyse intelligente des marchés crypto en temps réel.
+
+</p>
+
+<div class="hero-buttons">
+
+<button id="analyseBtn">
+
+📈 Nouvelle analyse
+
+</button>
+
+<button id="uploadBtn">
+
+📷 Import TradingView
+
+</button>
+
+</div>
+
+</div>
+
+<div class="hero-right">
+
+<div class="score-card">
+
+<h3>
+
+Score IA
+
+</h3>
+
+<div id="score">
+
+82
+
+</div>
+
+<p>
+
+Tendance haussière
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+  <section class="market-overview">
+
+<h2>
+
+📊 Marché en direct
+
+</h2>
+
+<div class="market-grid">
+
+<div class="market-card">
+
+<h3>Bitcoin</h3>
+
+<p class="symbol">BTC / USDT</p>
+
+<div class="price" id="btc-price">
+118 250 $
+</div>
+
+<div class="positive">
++2.31 %
+</div>
+
+</div>
+
+<div class="market-card">
+
+<h3>Ethereum</h3>
+
+<p class="symbol">ETH / USDT</p>
+
+<div class="price" id="eth-price">
+3 945 $
+</div>
+
+<div class="negative">
+−0.42 %
+</div>
+
+</div>
+
+<div class="market-card">
+
+<h3>Solana</h3>
+
+<p class="symbol">SOL / USDT</p>
+
+<div class="price">
+182 $
+</div>
+
+<div class="positive">
++4.82 %
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="analysis-panel">
+
+<h2>
+
+🤖 Analyse IA
+
+</h2>
+
+<div class="analysis-card">
+
+<div class="signal buy">
+
+ACHAT
+
+</div>
+
+<ul>
+
+<li><strong>Confiance :</strong> 92 %</li>
+
+<li><strong>Entrée :</strong> 118 100 $</li>
+
+<li><strong>Stop Loss :</strong> 116 850 $</li>
+
+<li><strong>TP1 :</strong> 119 500 $</li>
+
+<li><strong>TP2 :</strong> 121 000 $</li>
+
+<li><strong>TP3 :</strong> 123 400 $</li>
+
+</ul>
+
+</div>
+
+</section>
+  
+  <section class="tools-section">
+
+    <div class="tool-card">
+
+        <h2>📷 Analyse TradingView</h2>
+
+        <p>
+            Importez une capture TradingView afin que l'IA détecte automatiquement
+            la tendance, les zones clés et les opportunités de trading.
+        </p>
+
+        <button id="uploadTradingView">
+            Importer une capture
+        </button>
+
+    </div>
+
+    <div class="tool-card">
+
+        <h2>📰 Actualités Crypto</h2>
+
+        <div class="news-list">
+
+            <div class="news-item">
+                <span class="news-impact positive">▲ Positif</span>
+                <p>Le marché reste porté par les achats institutionnels.</p>
+            </div>
+
+            <div class="news-item">
+                <span class="news-impact neutral">● Neutre</span>
+                <p>La volatilité demeure modérée sur les principales cryptomonnaies.</p>
+            </div>
+
+            <div class="news-item">
+                <span class="news-impact negative">▼ Risque</span>
+                <p>Surveillez les annonces macroéconomiques de la semaine.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="history-section">
+
+    <h2>📋 Dernières analyses</h2>
+
+    <table class="history-table">
+
+        <thead>
+
+            <tr>
+                <th>Date</th>
+                <th>Crypto</th>
+                <th>Signal</th>
+                <th>Confiance</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>Aujourd'hui</td>
+                <td>BTC</td>
+                <td class="buy">ACHAT</td>
+                <td>92%</td>
+            </tr>
+
+            <tr>
+                <td>Aujourd'hui</td>
+                <td>ETH</td>
+                <td class="wait">ATTENTE</td>
+                <td>68%</td>
+            </tr>
+
+            <tr>
+                <td>Hier</td>
+                <td>SOL</td>
+                <td class="sell">VENTE</td>
+                <td>81%</td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</section>
+
+</main>
+
+<footer>
+
+<p>
+
+Crypto Copilot IA — Version 2 © 2026
+
+</p>
+
+</footer>
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
