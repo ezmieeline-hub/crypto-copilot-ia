@@ -11,7 +11,11 @@
 <div class="card"><div class="row"><h2 id="welcome">Bienvenue</h2><button id="logoutBtn" class="secondary">Déconnexion</button></div>
 <div class="analysis-form"><input id="symbol" value="BTC" placeholder="BTC, ETH, SOL..."><button id="analyzeBtn">📈 Nouvelle analyse</button></div></div>
 <section id="analysisCard" class="card hidden"><h2 id="analysisTitle">Analyse</h2><div id="analysisGrid" class="stats"></div></section>
-<section class="card"><h2>📷 Import TradingView</h2><input id="tvFile" type="file" accept="image/*"><button id="tvBtn">Analyser la capture</button><p id="tvResult"></p></section>
+<section class="card"><h2>📷 Import TradingView</h2>
+<div class="analysis-form"><input id="tvSymbol" placeholder="Symbole affiché (ex: BTC) - optionnel"><input id="tvFile" type="file" accept="image/*"></div>
+<button id="tvBtn">Analyser la capture</button>
+<div id="tvResult"></div>
+</section>
 <section class="card"><h2>🔔 Nouvelle alerte</h2><div class="analysis-form"><input id="alertSymbol" value="BTC"><select id="alertDirection"><option value="above">Au-dessus</option><option value="below">En dessous</option></select><input id="alertPrice" type="number" value="120000"><button id="alertBtn">Créer</button></div><div id="alerts"></div></section>
 <section class="card"><div class="row"><h2>Historique</h2><button id="historyBtn" class="secondary">Actualiser</button></div><div id="history"></div></section>
 </section><p id="message"></p></main><script src="/static/app.js"></script></body></html>
