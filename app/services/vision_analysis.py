@@ -244,7 +244,7 @@ Le résumé doit être professionnel.
 La justification doit expliquer clairement pourquoi l'IA prend cette décision.
 
 Ne jamais répondre autrement qu'avec du JSON.
-"""
+
 Analyse également les éléments suivants lorsqu'ils sont visibles :
 
 =========================
@@ -489,9 +489,10 @@ async def analyze_screenshot(
             "Aucune donnée Binance disponible."
         )
 
-    prompt = PROMPT_TEMPLATE.format(
-        market_context=context_text
-    )
+    prompt = PROMPT_TEMPLATE.replace(
+    "{market_context}",
+    context_text,
+)
 
     image_b64 = base64.b64encode(
         image_bytes
