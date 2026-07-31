@@ -43,8 +43,9 @@ $('analyzeBtn').onclick=async()=>{
   if(!s) return message('Saisissez une crypto.');
   message('Analyse en cours...');
   try{
-    const d=await api('/api/analyze/'+encodeURIComponent(s));
-    console.log(d);
+    const d = await api('/api/analyze/' + encodeURIComponent(s));
+
+console.log("ANALYSE :", d);
     $('analysisCard').classList.remove('hidden');
     $('analysisTitle').textContent=`${d.symbol} — ${d.signal}`;
     $('analysisGrid').innerHTML=`
