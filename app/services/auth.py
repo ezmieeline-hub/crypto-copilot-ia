@@ -8,11 +8,12 @@ def hash_password(password: str) -> str:
 def register_user(name: str, email: str, password: str):
     with connect() as db:
         cursor = db.execute(
-            "INSERT INTO users(name,email,password) VALUES(?,?,?)",
+            "INSERT INTO users(name,email,password) VALUES(?,?,?) RETURNING id",
             (name.strip(), email.strip().lower(), hash_password(password)),
         )
+        new_id = cursor.fetchone()["id"]
         db.commit()
-        return cursor.lastrowid
+        return new_id
 
 def login_user(email: str, password: str):
     with connect() as db:
