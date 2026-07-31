@@ -2512,17 +2512,13 @@ async def analyze_engine(
 
 async def analyze(
     symbol,
-    image_bytes,
-    mime_type,
+    image_bytes=None,
+    mime_type=None,
 ):
 
     return await analyze_engine(
-
         symbol=symbol,
-
         image_bytes=image_bytes,
-
         mime_type=mime_type,
-
     )
     
