@@ -44,6 +44,7 @@ $('analyzeBtn').onclick=async()=>{
   message('Analyse en cours...');
   try{
     const d=await api('/api/analyze/'+encodeURIComponent(s));
+    console.log(d);
     $('analysisCard').classList.remove('hidden');
     $('analysisTitle').textContent=`${d.symbol} — ${d.signal}`;
     $('analysisGrid').innerHTML=`
