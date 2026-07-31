@@ -439,6 +439,12 @@ Pourquoi il est risqué
 
 Le résumé doit être écrit comme le ferait un analyste professionnel.
 
+"""
+
+class VisionAnalysisError(Exception):
+    pass
+
+
 async def analyze_screenshot(
     image_bytes: bytes,
     mime_type: str,
