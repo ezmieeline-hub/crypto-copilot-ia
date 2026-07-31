@@ -1,9 +1,13 @@
+import json
+
 from fastapi import APIRouter, Cookie, HTTPException
-from app.services.auth import get_user
+
 from app.services.analysis_engine import analyze
+from app.services.auth import get_user
 from app.services.database import connect
 
 router = APIRouter(tags=["analysis"])
+
 
 @router.get("/analyze/{symbol}")
 async def run_analysis(symbol: str, session: str | None = Cookie(default=None)):
@@ -11,16 +15,17 @@ async def run_analysis(symbol: str, session: str | None = Cookie(default=None)):
     if not user:
         raise HTTPException(401, "Connexion requise.")
     try:
-        result = analyze(symbol)
+        result = await analyze(symbol)
     except ValueError as e:
         raise HTTPException(400, str(e))
     with connect() as db:
         db.execute(
             "INSERT INTO analyses(user_id,symbol,signal,confidence,result_json) VALUES(?,?,?,?,?)",
-            (user["id"], result["symbol"], result["signal"], result["confidence"], __import__("json").dumps(result)),
+            (user["id"], result["symbol"], result["signal"], result["confidence"], json.dumps(result)),
         )
         db.commit()
     return result
+
 
 @router.get("/history")
 async def history(session: str | None = Cookie(default=None)):
