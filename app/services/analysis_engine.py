@@ -757,15 +757,18 @@ async def build_analysis_context(
         interval,
     )
 
+if image_bytes is not None and mime_type is not None:
     raw_vision = await build_vision_context(
         image_bytes=image_bytes,
         mime_type=mime_type,
         market_context=market,
     )
+else:
+    raw_vision = {}
 
-    vision = normalize_vision_result(
-        raw_vision,
-    )
+vision = normalize_vision_result(
+    raw_vision,
+)
 
     vision["market_structure"] = (
         extract_market_structure(
