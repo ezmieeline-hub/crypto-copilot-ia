@@ -1806,22 +1806,22 @@ class DecisionEngine:
 
     def validate_rr(self):
 
-    rr = self.trade.get(
-        "risk_reward",
-        {},
-    ).get("recommended")
+        rr = self.trade.get(
+            "risk_reward",
+            {},
+        ).get("recommended")
 
-    if rr is None:
-        self.reasons.append(
-            "Risk Reward inconnu."
-        )
-        return False
+        if rr is None:
+            self.reasons.append(
+                "Risk Reward inconnu."
+            )
+            return False
 
-    if rr < 2:
-        self.reasons.append(
-            "Risk Reward inférieur à 2."
-        )
-        return False
+        if rr < 2:
+            self.reasons.append(
+                "Risk Reward inférieur à 2."
+            )
+            return False
 
         return True
 
