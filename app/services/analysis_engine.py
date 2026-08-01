@@ -1430,179 +1430,178 @@ class TradePlanner:
 
     def compute_stop_loss(self):
 
+        # =====================================================
+        # Sécurités
+        # =====================================================
+
+        if self.entry is None:
+            self.stop = None
+            return
+
+        atr = self.atr or 0
+        volatility = self.market.get("volatility") or 0
+
+        # Distance minimale
+        atr_multiplier = 1.50
+
+        if volatility > 6:
+            atr_multiplier = 2.00
+        elif volatility < 2:
+            atr_multiplier = 1.20
+
+        # =====================================================
+        # ACHAT
+        # =====================================================
+
+        if self.direction == "ACHAT":
+
+            candidates = []
+
+            if self.support is not None:
+                candidates.append(self.support)
+
+            if atr > 0:
+                candidates.append(
+                    self.entry - atr * atr_multiplier
+                )
+
+            ai_stop = self.vision.get("stop_loss")
+
+            if ai_stop:
+                candidates.append(ai_stop)
+
+            if candidates:
+                self.stop = min(candidates)
+            else:
+                self.stop = self.entry * 0.98
+
+        # =====================================================
+        # VENTE
+        # =====================================================
+
+        elif self.direction == "VENTE":
+
+            candidates = []
+
+            if self.resistance is not None:
+                candidates.append(self.resistance)
+
+            if atr > 0:
+                candidates.append(
+                    self.entry + atr * atr_multiplier
+                )
+
+            ai_stop = self.vision.get("stop_loss")
+
+            if ai_stop:
+                candidates.append(ai_stop)
+
+            if candidates:
+                self.stop = max(candidates)
+            else:
+                self.stop = self.entry * 1.02
+
+        else:
+
+            self.stop = None
+
+        self.stop = round_price(self.stop)
+
     # =====================================================
-    # Sécurités
-    # =====================================================
 
-    if self.entry is None:
-        self.stop = None
-        return
+    def compute_take_profits(self):
 
-    atr = self.atr or 0
-    volatility = self.market.get("volatility") or 0
+        if self.entry is None:
+            return
 
-    # Distance minimale
-    atr_multiplier = 1.50
+        atr = self.atr or 0
 
-    if volatility > 6:
-        atr_multiplier = 2.00
-    elif volatility < 2:
-        atr_multiplier = 1.20
+        resistance = self.resistance
+        support = self.support
 
-    # =====================================================
-    # ACHAT
-    # =====================================================
+        ai_tp = self.vision.get("take_profit")
 
-    if self.direction == "ACHAT":
+        # =====================================================
+        # ACHAT
+        # =====================================================
 
-        candidates = []
+        if self.direction == "ACHAT":
 
-        if self.support is not None:
-            candidates.append(self.support)
+            # TP1 = première résistance
+            if resistance:
+                self.tp1 = resistance
+            else:
+                self.tp1 = self.entry + atr
 
-        if atr > 0:
-            candidates.append(
-                self.entry - atr * atr_multiplier
+            # TP2 = objectif principal
+            if ai_tp:
+                self.tp2 = max(
+                    ai_tp,
+                    self.entry + atr * 2
+                )
+            else:
+                self.tp2 = self.entry + atr * 2
+
+            # TP3 = extension
+            self.tp3 = max(
+                self.tp2,
+                self.entry + atr * 3.5
             )
 
-        # Stop proposé par Gemini
-        ai_stop = self.vision.get("stop_loss")
-
-        if ai_stop:
-            candidates.append(ai_stop)
-
-        if candidates:
-            self.stop = min(candidates)
-        else:
-            self.stop = self.entry * 0.98
-
-    # =====================================================
-    # VENTE
-    # =====================================================
-
-    elif self.direction == "VENTE":
-
-        candidates = []
-
-        if self.resistance is not None:
-            candidates.append(self.resistance)
-
-        if atr > 0:
-            candidates.append(
-                self.entry + atr * atr_multiplier
+            # TP4 = objectif final
+            self.tp4 = max(
+                self.tp3,
+                self.entry + atr * 5
             )
 
-        ai_stop = self.vision.get("stop_loss")
+        # =====================================================
+        # VENTE
+        # =====================================================
 
-        if ai_stop:
-            candidates.append(ai_stop)
+        elif self.direction == "VENTE":
 
-        if candidates:
-            self.stop = max(candidates)
-        else:
-            self.stop = self.entry * 1.02
+            # TP1 = premier support
+            if support:
+                self.tp1 = support
+            else:
+                self.tp1 = self.entry - atr
 
-    else:
+            # TP2 = objectif principal
+            if ai_tp:
+                self.tp2 = min(
+                    ai_tp,
+                    self.entry - atr * 2
+                )
+            else:
+                self.tp2 = self.entry - atr * 2
 
-        self.stop = None
-
-    self.stop = round_price(self.stop)
-    
-            # =====================================================
-
-def compute_take_profits(self):
-
-    if self.entry is None:
-        return
-
-    atr = self.atr or 0
-
-    resistance = self.resistance
-    support = self.support
-
-    ai_tp = self.vision.get("take_profit")
-
-    # =====================================================
-    # ACHAT
-    # =====================================================
-
-    if self.direction == "ACHAT":
-
-        # TP1 = première résistance
-        if resistance:
-            self.tp1 = resistance
-        else:
-            self.tp1 = self.entry + atr
-
-        # TP2 = objectif principal
-        if ai_tp:
-            self.tp2 = max(
-                ai_tp,
-                self.entry + atr * 2
+            # TP3 = extension
+            self.tp3 = min(
+                self.tp2,
+                self.entry - atr * 3.5
             )
-        else:
-            self.tp2 = self.entry + atr * 2
 
-        # TP3 = extension
-        self.tp3 = max(
-            self.tp2,
-            self.entry + atr * 3.5
-        )
-
-        # TP4 = objectif final
-        self.tp4 = max(
-            self.tp3,
-            self.entry + atr * 5
-        )
-
-    # =====================================================
-    # VENTE
-    # =====================================================
-
-    elif self.direction == "VENTE":
-
-        # TP1 = premier support
-        if support:
-            self.tp1 = support
-        else:
-            self.tp1 = self.entry - atr
-
-        # TP2 = objectif principal
-        if ai_tp:
-            self.tp2 = min(
-                ai_tp,
-                self.entry - atr * 2
+            # TP4 = objectif final
+            self.tp4 = min(
+                self.tp3,
+                self.entry - atr * 5
             )
+
         else:
-            self.tp2 = self.entry - atr * 2
 
-        # TP3 = extension
-        self.tp3 = min(
-            self.tp2,
-            self.entry - atr * 3.5
-        )
+            self.tp1 = None
+            self.tp2 = None
+            self.tp3 = None
+            self.tp4 = None
 
-        # TP4 = objectif final
-        self.tp4 = min(
-            self.tp3,
-            self.entry - atr * 5
-        )
+        self.tp1 = round_price(self.tp1)
+        self.tp2 = round_price(self.tp2)
+        self.tp3 = round_price(self.tp3)
+        self.tp4 = round_price(self.tp4)
 
-    else:
+    # =====================================================
 
-        self.tp1 = None
-        self.tp2 = None
-        self.tp3 = None
-        self.tp4 = None
-
-    self.tp1 = round_price(self.tp1)
-    self.tp2 = round_price(self.tp2)
-    self.tp3 = round_price(self.tp3)
-    self.tp4 = round_price(self.tp4)
-
-# =====================================================
-
-def compute_break_even(self):
+    def compute_break_even(self):
 
         if self.direction == "ACHAT":
 
@@ -1624,29 +1623,29 @@ def compute_break_even(self):
 
     # =====================================================
 
-def compute_rr(self):
+    def compute_rr(self):
 
-    if (
-        self.entry is None
-        or self.stop is None
-    ):
-        return None
+        if (
+            self.entry is None
+            or self.stop is None
+        ):
+            return None
 
-    results = {}
+        results = {}
 
-    risk = abs(
-        self.entry - self.stop
-    )
+        risk = abs(
+            self.entry - self.stop
+        )
 
-    if risk == 0:
-        return None
+        if risk == 0:
+            return None
 
-    targets = {
-        "tp1": self.tp1,
-        "tp2": self.tp2,
-        "tp3": self.tp3,
-        "tp4": self.tp4,
-    }
+        targets = {
+            "tp1": self.tp1,
+            "tp2": self.tp2,
+            "tp3": self.tp3,
+            "tp4": self.tp4,
+        }
 
     for name, target in targets.items():
 
