@@ -47,14 +47,19 @@ $('analyzeBtn').onclick=async()=>{
 
 console.log("ANALYSE :", d);
     $('analysisCard').classList.remove('hidden');
-    $('analysisTitle').textContent=`${d.symbol} — ${d.signal}`;
-    $('analysisGrid').innerHTML=`
-      <div><span>Prix</span><b>${d.price.toLocaleString('fr-FR')} $</b></div>
-      <div><span>RSI</span><b>${d.rsi ?? '—'}</b></div>
-      <div><span>MACD</span><b>${d.macd ?? '—'}</b></div>
-      <div><span>Tendance</span><b>${d.trend}</b></div>
-      <div><span>Confiance</span><b>${d.confidence}%</b></div>
-      <div><span>Support / Résistance</span><b>${d.support} / ${d.resistance}</b></div>`;
+    $('analysisTitle').textContent =
+    `${d.summary.symbol} — ${d.trade.direction}`;
+
+$('analysisGrid').innerHTML = `
+<div><span>Prix</span><b>${d.market.price.toLocaleString('fr-FR')} $</b></div>
+<div><span>RSI</span><b>${d.market.rsi ?? '—'}</b></div>
+<div><span>MACD</span><b>${d.market.macd ?? '—'}</b></div>
+<div><span>Tendance</span><b>${d.analysis.decision.trend ?? '—'}</b></div>
+<div><span>Confiance</span><b>${d.analysis.decision.confidence ?? 0}%</b></div>
+<div><span>Entrée</span><b>${d.trade.entry ?? '—'}</b></div>
+<div><span>Stop Loss</span><b>${d.trade.stop_loss ?? '—'}</b></div>
+<div><span>Take Profit</span><b>${d.trade.tp1 ?? '—'}</b></div>
+`;
     message('Analyse terminée.');
     loadHistory();
   }catch(e){message(e.message)}
