@@ -778,15 +778,11 @@ vision["smc"] = extract_smc(
     raw_vision
 )
 
-    return {
-
-        "market": market,
-
-        "vision": vision,
-
-        "raw": raw_vision,
-
-    }
+return {
+    "market": market,
+    "vision": vision,
+    "raw": raw_vision,
+}
     # ============================================================
 # SMART MONEY ANALYSIS
 # ============================================================
