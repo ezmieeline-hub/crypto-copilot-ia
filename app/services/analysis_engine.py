@@ -770,15 +770,13 @@ vision = normalize_vision_result(
     raw_vision,
 )
 
-    vision["market_structure"] = (
-        extract_market_structure(
-            raw_vision
-        )
-    )
+vision["market_structure"] = extract_market_structure(
+    raw_vision
+)
 
-    vision["smc"] = extract_smc(
-        raw_vision
-    )
+vision["smc"] = extract_smc(
+    raw_vision
+)
 
     return {
 
