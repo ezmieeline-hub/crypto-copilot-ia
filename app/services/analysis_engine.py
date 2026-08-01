@@ -1801,9 +1801,10 @@ class DecisionEngine:
         self.score = normalize_score(
             self.score
         )
-            # =====================================================
 
-def validate_rr(self):
+    # =====================================================
+
+    def validate_rr(self):
 
     rr = self.trade.get(
         "risk_reward",
@@ -1822,8 +1823,28 @@ def validate_rr(self):
         )
         return False
 
-    return True
-            # =====================================================
+        return True
+
+    # =====================================================
+
+    def validate_volume(self):
+
+        rv = self.market.get(
+            "relative_volume"
+        )
+
+        if rv is None:
+            return True
+
+        if rv < 0.90:
+            self.reasons.append(
+                "Volume insuffisant."
+            )
+            return False
+
+        return True
+
+    # =====================================================
 
     def validate_trend(self):
 
@@ -1883,73 +1904,74 @@ def validate_rr(self):
         return True
             # =====================================================
 
-def build_decision(self):
+    def build_decision(self):
 
-    # =====================================================
-    # Construction du score global
-    # =====================================================
+        # =====================================================
+        # Construction du score global
+        # =====================================================
 
-    self.score_market()
-    self.score_smc()
-    self.score_ai()
-    self.remove_penalties()
-    self.normalize()
+        self.score_market()
+        self.score_smc()
+        self.score_ai()
+        self.remove_penalties()
+        self.normalize()
 
-    signal = self.vision.get(
-        "signal",
-        "ATTENDRE",
-    )
+        signal = self.vision.get(
+            "signal",
+            "ATTENDRE",
+        )
 
-    validations = {
-        "rr": self.validate_rr(),
-        "volume": self.validate_volume(),
-        "trend": self.validate_trend(),
-        "adx": self.validate_adx(),
-    }
+        validations = {
+            "rr": self.validate_rr(),
+            "volume": self.validate_volume(),
+            "trend": self.validate_trend(),
+            "adx": self.validate_adx(),
+        }
 
-    failed = [
-        key
-        for key, value in validations.items()
-        if not value
-    ]
+        failed = [
+            key
+            for key, value in validations.items()
+            if not value
+        ]
 
-    # =====================================================
-    # Décision
-    # =====================================================
+        # =====================================================
+        # Décision
+        # =====================================================
 
-    if len(failed) >= 3:
+        if len(failed) >= 3:
+            self.decision = "ATTENDRE"
+            self.reasons.append(
+                "Trop de critères bloquants."
+            )
+            return
+
+        if self.score >= 85 and len(failed) == 0:
+            self.decision = signal
+            self.reasons.append(
+                "Toutes les conditions sont réunies."
+            )
+            return
+
+        if self.score >= 75 and len(failed) <= 1:
+            self.decision = signal
+            self.reasons.append(
+                "Signal valide avec un risque maîtrisé."
+            )
+            return
+
+        if self.score >= 65:
+            self.decision = "ATTENDRE"
+            self.reasons.append(
+                "Confiance insuffisante."
+            )
+            return
+
         self.decision = "ATTENDRE"
         self.reasons.append(
-            "Trop de critères bloquants."
+            "Score global trop faible."
         )
-        return
 
-    if self.score >= 85 and len(failed) == 0:
-        self.decision = signal
-        self.reasons.append(
-            "Toutes les conditions sont réunies."
-        )
-        return
-
-    if self.score >= 75 and len(failed) <= 1:
-        self.decision = signal
-        self.reasons.append(
-            "Signal valide avec un risque maîtrisé."
-        )
-        return
-
-    if self.score >= 65:
-        self.decision = "ATTENDRE"
-        self.reasons.append(
-            "Confiance insuffisante."
-        )
-        return
-
-    self.decision = "ATTENDRE"
-    self.reasons.append(
-        "Score global trop faible."
-    )
-                # =====================================================
+    # =====================================================
 
     def export(self):
 
