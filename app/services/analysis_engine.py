@@ -1647,40 +1647,40 @@ class TradePlanner:
             "tp4": self.tp4,
         }
 
-    for name, target in targets.items():
+        for name, target in targets.items():
 
-        if target is None:
-            results[name] = None
-            continue
+            if target is None:
+                results[name] = None
+                continue
 
-        reward = abs(
-            target - self.entry
+            reward = abs(
+                target - self.entry
+            )
+
+            results[name] = round(
+                reward / risk,
+                2,
+            )
+
+        valid_rr = [
+            rr
+            for rr in results.values()
+            if rr is not None
+        ]
+
+        results["best"] = (
+            max(valid_rr)
+            if valid_rr
+            else None
         )
 
-        results[name] = round(
-            reward / risk,
-            2,
+        results["recommended"] = (
+            results["tp2"]
+            if results["tp2"] is not None
+            else results["tp1"]
         )
 
-    valid_rr = [
-        rr
-        for rr in results.values()
-        if rr is not None
-    ]
-
-    results["best"] = (
-        max(valid_rr)
-        if valid_rr
-        else None
-    )
-
-    results["recommended"] = (
-        results["tp2"]
-        if results["tp2"] is not None
-        else results["tp1"]
-    )
-
-    return results
+        return results
 
     # =====================================================
 
