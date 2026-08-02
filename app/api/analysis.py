@@ -71,7 +71,7 @@ async def run_analysis(
 
     with connect() as db:
 
-        db.execute(
+        cursor = db.execute(
 
             """
             INSERT INTO analyses(
@@ -93,6 +93,8 @@ async def run_analysis(
                 ?
 
             )
+
+            RETURNING id
             """,
 
             (
@@ -120,7 +122,11 @@ async def run_analysis(
 
         )
 
+        new_id = cursor.fetchone()["id"]
+
         db.commit()
+
+    result["analysis_id"] = new_id
 
     return result
 
