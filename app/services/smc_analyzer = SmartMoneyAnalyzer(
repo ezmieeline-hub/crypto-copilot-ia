@@ -2592,12 +2592,18 @@ async def analyze_engine(
         # SMART MONEY ANALYSIS
         # ===================================================
 
+        print("AVANT SMART MONEY")
+
         smc_analyzer = SmartMoneyAnalyzer(
             market,
             vision,
         )
 
+        print("APRES SMART MONEY")
+
         smc_result = smc_analyzer.analyse()
+
+        print("APRES ANALYSE")
 
         # ===================================================
         # CONTRADICTIONS
