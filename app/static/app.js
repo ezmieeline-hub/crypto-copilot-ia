@@ -188,17 +188,29 @@ async function loadAlerts(){
     $('alerts').innerHTML=rows.length?rows.map(a=>`<div class="history-row"><b>${a.symbol}</b><span>${a.direction==='above'?'Au-dessus':'En dessous'}</span><span>${a.target_price}</span></div>`).join(''):'Aucune alerte.';
   }catch(e){}
 }
+function decisionCorrecte(signal, resultPercent){
+  if (resultPercent == null) return null;
+  if (signal === 'ACHAT') return resultPercent > 0;
+  if (signal === 'VENTE') return resultPercent < 0;
+  return null;
+}
+
 async function loadJournal(){
   try{
     const rows = await api('/api/journal');
-    $('journalList').innerHTML = rows.length ? rows.map(r => `
-      <div class="history-row">
-        <b>${r.symbol}</b>
-        <span>${r.taken ? 'Trade pris' : 'Non pris'}</span>
-        <span>${r.result_percent != null ? (r.result_percent > 0 ? '+' : '') + r.result_percent + '%' : '—'}</span>
-        <small>${r.comment || '—'}</small>
-      </div>
-    `).join('') : 'Aucune entrée.';
+    $('journalList').innerHTML = rows.length ? rows.map(r => {
+      const correct = decisionCorrecte(r.signal, r.result_percent);
+      const correctBadge = correct === null ? '' :
+        correct ? '<span class="pos">✅ Décision correcte</span>' : '<span class="neg">❌ Décision incorrecte</span>';
+      return `
+        <div class="history-row">
+          <b>${r.symbol}</b>
+          <span>IA : ${r.signal ?? '—'}${r.confidence != null ? ' (' + r.confidence + '%)' : ''}</span>
+          <span>${r.result_percent != null ? (r.result_percent > 0 ? '+' : '') + r.result_percent + '%' : '—'}</span>
+          <small>${correctBadge || r.comment || '—'}</small>
+        </div>
+      `;
+    }).join('') : 'Aucune entrée.';
   }catch(e){ $('journalList').textContent = e.message; }
 }
 async function loadDashboard(){
