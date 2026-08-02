@@ -2573,6 +2573,11 @@ async def analyze_engine(
 
         print("OK 1")
 
+        smc_analyzer = SmartMoneyAnalyzer(
+            market,
+            vision,
+        )
+
         smc_result = smc_analyzer.analyse()
         print("OK 2")
 
