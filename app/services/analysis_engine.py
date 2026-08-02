@@ -2053,7 +2053,122 @@ class DecisionEngine:
                 ],
 
         }
-        # ============================================================
+
+
+# ============================================================
+# SETUP QUALITY ANALYZER
+# ============================================================
+
+class SetupQualityAnalyzer:
+
+    def __init__(
+        self,
+        market: MarketContext,
+        vision: dict,
+        smc: dict,
+        trade: dict,
+        decision: dict,
+    ):
+        self.market = market
+        self.vision = vision
+        self.smc = smc
+        self.trade = trade
+        self.decision = decision
+        self.checks = []
+
+    def _add(self, label, passed):
+        self.checks.append({"label": label, "passed": bool(passed)})
+
+    def check_trend(self):
+        trend = self.market.get("trend")
+        signal = self.vision.get("signal", "")
+        aligned = not (
+            (trend == "HAUSSIERE" and signal == "VENTE")
+            or (trend == "BAISSIERE" and signal == "ACHAT")
+        )
+        self._add("Tendance", aligned)
+
+    def check_volume(self):
+        rv = self.market.get("relative_volume")
+        self._add("Volume", rv is not None and rv >= 1.0)
+
+    def check_liquidity(self):
+        self._add("Liquidité", bool(self.smc.get("liquidity")))
+
+    def check_bos(self):
+        self._add("BOS confirmé", bool(self.vision.get("market_structure", {}).get("bos")))
+
+    def check_rsi(self):
+        rsi = self.market.get("rsi")
+        signal = self.vision.get("signal", "")
+        if rsi is None:
+            self._add("RSI valide", False)
+            return
+        if signal == "ACHAT":
+            self._add("RSI valide", rsi >= 50)
+        elif signal == "VENTE":
+            self._add("RSI valide", rsi <= 50)
+        else:
+            self._add("RSI valide", 40 <= rsi <= 60)
+
+    def check_macd(self):
+        hist = self.market.get("macd_hist")
+        signal = self.vision.get("signal", "")
+        if hist is None:
+            self._add("MACD aligné", False)
+            return
+        if signal == "ACHAT":
+            self._add("MACD haussier", hist > 0)
+        elif signal == "VENTE":
+            self._add("MACD baissier", hist < 0)
+        else:
+            self._add("MACD neutre", abs(hist) < 0.0001)
+
+    def check_adx(self):
+        adx = self.market.get("adx")
+        self._add("Tendance directionnelle (ADX)", adx is not None and adx >= 18)
+
+    def check_risk_reward(self):
+        rr = self.trade.get("risk_reward") or {}
+        recommended = rr.get("recommended")
+        self._add("Risk/Reward ≥ 2", recommended is not None and recommended >= 2)
+
+    def check_zone_distance(self):
+        signal = self.vision.get("signal", "")
+        if signal == "ACHAT":
+            dist = self.market.get("resistance_distance")
+            self._add("Résistance éloignée", dist is not None and dist >= 1.5)
+        elif signal == "VENTE":
+            dist = self.market.get("support_distance")
+            self._add("Support éloigné", dist is not None and dist >= 1.5)
+
+    def analyse(self):
+        self.check_trend()
+        self.check_volume()
+        self.check_liquidity()
+        self.check_bos()
+        self.check_rsi()
+        self.check_macd()
+        self.check_adx()
+        self.check_risk_reward()
+        self.check_zone_distance()
+
+        score = self.decision.get("confidence", 0)
+        stars = max(0, min(5, round(score / 20)))
+
+        strengths = [c["label"] for c in self.checks if c["passed"]]
+        weaknesses = [c["label"] for c in self.checks if not c["passed"]]
+
+        return {
+            "score": score,
+            "stars": stars,
+            "checks": self.checks,
+            "strengths": strengths,
+            "weaknesses": weaknesses,
+        }
+
+
+# ============================================================
 # TRADE MANAGER
 # ============================================================
 
@@ -2317,6 +2432,7 @@ class ReportBuilder:
         trade: dict,
         decision: dict,
         trade_manager: dict,
+        setup_quality: dict,
     ):
 
         self.market = market
@@ -2326,6 +2442,7 @@ class ReportBuilder:
         self.trade = trade
         self.decision = decision
         self.trade_manager = trade_manager
+        self.setup_quality = setup_quality
 
     # =====================================================
 
@@ -2519,6 +2636,10 @@ class ReportBuilder:
 
                 self.decision,
 
+            "setup_quality":
+
+                self.setup_quality,
+
         }
 
     # =====================================================
@@ -2685,6 +2806,20 @@ async def analyze_engine(
         decision = decision_engine.export()
 
         # ===================================================
+        # SETUP QUALITY
+        # ===================================================
+
+        setup_quality_analyzer = SetupQualityAnalyzer(
+            market=market,
+            vision=vision,
+            smc=vision["smc"],
+            trade=trade_plan,
+            decision=decision,
+        )
+
+        setup_quality = setup_quality_analyzer.analyse()
+
+        # ===================================================
         # TRADE MANAGEMENT
         # ===================================================
 
@@ -2708,6 +2843,7 @@ async def analyze_engine(
             trade=trade_plan,
             decision=decision,
             trade_manager=management,
+            setup_quality=setup_quality,
         )
 
         return report.export()
