@@ -65,6 +65,27 @@ $('analysisGrid').innerHTML = `
 <div><span>Stop Loss</span><b>${d.trade.stop_loss ?? '—'}</b></div>
 <div><span>Take Profit</span><b>${d.trade.tp1 ?? '—'}</b></div>
 `;
+
+    const sq = d.analysis.setup_quality;
+    if (sq) {
+      const starsFull = '⭐'.repeat(sq.stars);
+      const starsEmpty = '☆'.repeat(5 - sq.stars);
+      const strengthsHtml = sq.strengths.map(s => `<li class="ok">✔ ${s}</li>`).join('');
+      const weaknessesHtml = sq.weaknesses.map(w => `<li class="ko">✖ ${w}</li>`).join('');
+
+      $('setupQuality').innerHTML = `
+        <h3>Qualité du setup</h3>
+        <div class="quality-score">
+          <span class="quality-stars">${starsFull}${starsEmpty}</span>
+          <span class="quality-number">${sq.score}/100</span>
+        </div>
+        <ul class="quality-checklist">${strengthsHtml}</ul>
+        ${weaknessesHtml ? `<h3>Faiblesse${sq.weaknesses.length > 1 ? 's' : ''}</h3><ul class="quality-checklist">${weaknessesHtml}</ul>` : ''}
+      `;
+    } else {
+      $('setupQuality').innerHTML = '';
+    }
+
     message('Analyse terminée.');
     loadHistory();
   }catch(e){message(e.message)}
