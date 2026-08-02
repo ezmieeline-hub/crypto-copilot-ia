@@ -16,6 +16,15 @@
 <button id="tvBtn">Analyser la capture</button>
 <div id="tvResult"></div>
 </section>
+<section class="card"><h2>🧮 Simulateur Risk/Reward</h2>
+<div class="analysis-form">
+  <input id="simEntry" type="number" step="any" placeholder="Prix d'entrée">
+  <input id="simStop" type="number" step="any" placeholder="Stop Loss">
+  <input id="simTp" type="number" step="any" placeholder="Take Profit">
+</div>
+<button id="simBtn">Calculer</button>
+<div id="simResult"></div>
+</section>
 <section class="card"><h2>🔔 Nouvelle alerte</h2><div class="analysis-form"><input id="alertSymbol" value="BTC"><select id="alertDirection"><option value="above">Au-dessus</option><option value="below">En dessous</option></select><input id="alertPrice" type="number" value="120000"><button id="alertBtn">Créer</button></div><div id="alerts"></div></section>
 <section class="card"><div class="row"><h2>Historique</h2><button id="historyBtn" class="secondary">Actualiser</button></div><div id="history"></div></section>
 </section><p id="message"></p></main><script src="/static/app.js"></script></body></html>
