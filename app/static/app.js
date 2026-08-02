@@ -89,7 +89,47 @@ $('setupQuality').innerHTML = `
     } else {
       $('setupQuality').innerHTML = '';
     }
+$('journalBlock').innerHTML = `
+  <h3>Trade pris ?</h3>
+  <div class="analysis-form">
+    <button id="journalYes" class="secondary">Oui</button>
+    <button id="journalNo" class="secondary">Non</button>
+  </div>
+  <div id="journalForm" class="hidden">
+    <input id="journalResult" type="number" step="any" placeholder="Résultat (%)">
+    <input id="journalComment" placeholder="Commentaire (ex: sorti trop tôt)">
+    <button id="journalSave">Enregistrer</button>
+  </div>
+  <p id="journalMsg"></p>
+`;
 
+$('journalNo').onclick = async () => {
+  try {
+    await api(`/api/journal/${d.analysis_id}`, {method: 'POST', body: JSON.stringify({taken: false})});
+    $('journalMsg').textContent = 'Enregistré : trade non pris.';
+  } catch (e) { $('journalMsg').textContent = e.message; }
+};
+
+$('journalYes').onclick = () => {
+  $('journalForm').classList.remove('hidden');
+};
+
+$('journalSave').onclick = async () => {
+  const result_percent = parseFloat($('journalResult').value);
+  const comment = $('journalComment').value;
+  try {
+    await api(`/api/journal/${d.analysis_id}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        taken: true,
+        result_percent: isNaN(result_percent) ? null : result_percent,
+        comment,
+      }),
+    });
+    $('journalMsg').textContent = 'Trade enregistré dans le journal ✅';
+    $('journalForm').classList.add('hidden');
+  } catch (e) { $('journalMsg').textContent = e.message; }
+};
     message('Analyse terminée.');
     loadHistory();
   }catch(e){message(e.message)}
