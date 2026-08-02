@@ -808,6 +808,13 @@ class SmartMoneyAnalyzer:
             "market_structure"
         ]
 
+        print("STRUCTURE =", self.structure)
+
+        if self.structure is None:
+            raise Exception(
+                "market_structure est None"
+            )
+
         self.smc = vision["smc"]
 
         self.score = 50
