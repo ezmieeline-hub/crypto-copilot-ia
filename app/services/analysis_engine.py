@@ -2127,7 +2127,18 @@ class SetupQualityAnalyzer:
     def check_adx(self):
         adx = self.market.get("adx")
         self._add("Tendance directionnelle (ADX)", adx is not None and adx >= 18)
-
+    def check_ema200(self):
+        ema20 = self.market.get("ema20")
+        ema200 = self.market.get("ema200")
+        signal = self.vision.get("signal", "")
+        if ema20 is None or ema200 is None:
+            self._add("EMA 200", False)
+            return
+        if signal == "VENTE":
+            self._add("EMA 200 baissière", ema20 < ema200)
+        else:
+            self._add("EMA 200 haussière", ema20 > ema200)
+            
     def check_risk_reward(self):
         rr = self.trade.get("risk_reward") or {}
         recommended = rr.get("recommended")
@@ -2150,6 +2161,7 @@ class SetupQualityAnalyzer:
         self.check_rsi()
         self.check_macd()
         self.check_adx()
+        self.check_ema200()
         self.check_risk_reward()
         self.check_zone_distance()
 
