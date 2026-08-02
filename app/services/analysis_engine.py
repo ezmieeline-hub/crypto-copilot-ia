@@ -1014,34 +1014,49 @@ class SmartMoneyAnalyzer:
     def analyse(self):
 
         self.analyse_bos()
+        print("SMC 1")
 
         self.analyse_choch()
+        print("SMC 2")
 
         self.analyse_mss()
+        print("SMC 3")
 
         self.analyse_breakout()
+        print("SMC 4")
 
         self.analyse_pullback()
+        print("SMC 5")
 
         self.analyse_order_block()
+        print("SMC 6")
 
         self.analyse_fvg()
+        print("SMC 7")
 
         self.analyse_supply()
+        print("SMC 8")
 
         self.analyse_demand()
+        print("SMC 9")
 
         self.analyse_liquidity()
+        print("SMC 10")
 
         self.analyse_equal_high()
+        print("SMC 11")
 
         self.analyse_equal_low()
+        print("SMC 12")
 
         self.analyse_weak_high()
+        print("SMC 13")
 
         self.analyse_weak_low()
+        print("SMC 14")
 
         self.analyse_price_action()
+        print("SMC 15")
 
         self.score = normalize_score(
             self.score
