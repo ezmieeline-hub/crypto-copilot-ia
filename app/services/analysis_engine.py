@@ -2533,8 +2533,26 @@ async def analyze_engine(
         )
 
         market = context["market"]
-
         vision = context["vision"]
+
+        print("OK 1")
+
+        smc_result = smc_analyzer.analyse()
+        print("OK 2")
+
+        contradiction_result = (
+            contradiction_engine.analyse()
+        )
+        print("OK 3")
+
+        trade_plan = planner.build()
+        print("OK 4")
+
+        decision = decision_engine.export()
+        print("OK 5")
+
+        management = trade_manager.export()
+        print("OK 6")
 
         # ===================================================
         # SMART MONEY ANALYSIS
