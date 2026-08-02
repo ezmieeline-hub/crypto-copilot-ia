@@ -2626,17 +2626,19 @@ async def analyze_engine(
 
         }
 
-    except Exception as exc:
+except Exception as exc:
 
-        return {
+    traceback.print_exc()
 
-            "success": False,
+    return {
 
-            "error": f"Analysis Engine Error : {exc}",
+        "success": False,
 
-            "generated_at": utc_now(),
+        "error": f"Analysis Engine Error : {exc}",
 
-        }
+        "generated_at": utc_now(),
+
+    }
 
 
 # ============================================================
