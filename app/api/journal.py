@@ -57,8 +57,11 @@ async def list_journal(session: str | None = Cookie(default=None)):
 
     with connect() as db:
         rows = db.execute(
-            """SELECT id,symbol,taken,result_percent,comment,created_at
-               FROM journal WHERE user_id=? ORDER BY id DESC LIMIT 50""",
+            """SELECT j.id,j.symbol,j.taken,j.result_percent,j.comment,j.created_at,
+                      a.signal,a.confidence
+               FROM journal j
+               LEFT JOIN analyses a ON a.id = j.analysis_id
+               WHERE j.user_id=? ORDER BY j.id DESC LIMIT 50""",
             (user["id"],),
         ).fetchall()
 
