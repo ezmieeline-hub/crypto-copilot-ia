@@ -73,7 +73,6 @@ $('analysisGrid').innerHTML = `
       const strengthsHtml = sq.strengths.map(s => `<li class="ok">✔ ${s}</li>`).join('');
       const weaknessesHtml = sq.weaknesses.map(w => `<li class="ko">✖ ${w}</li>`).join('');
 
-const reasonsText = (d.analysis.decision.reasons || []).join(' ');
 
 const reasonsText = (d.analysis.decision.reasons || []).join(' ');
 
