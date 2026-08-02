@@ -45,7 +45,12 @@ $('analyzeBtn').onclick=async()=>{
   try{
     const d = await api('/api/analyze/' + encodeURIComponent(s));
 
-console.log("ANALYSE :", d);
+    console.log("ANALYSE :", d);
+
+    console.log(d);
+    console.log(d.summary);
+    console.log(d.trade);
+
     $('analysisCard').classList.remove('hidden');
     $('analysisTitle').textContent =
     `${d.summary.symbol} — ${d.trade.direction}`;
