@@ -1842,10 +1842,19 @@ class DecisionEngine:
 
     def validate_rr(self):
 
-        rr = self.trade.get(
-            "risk_reward",
-            {},
-        ).get("recommended")
+        risk_reward = self.trade.get(
+            "risk_reward"
+        )
+
+        if risk_reward is None:
+            self.reasons.append(
+                "Risk Reward indisponible."
+            )
+            return False
+
+        rr = risk_reward.get(
+            "recommended"
+        )
 
         if rr is None:
             self.reasons.append(
