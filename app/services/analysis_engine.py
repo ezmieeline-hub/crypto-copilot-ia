@@ -4,6 +4,8 @@ import math
 from datetime import datetime, timezone
 from typing import Any
 
+import traceback
+
 from app.services.market_data import (
     get_klines,
     compute_rsi,
