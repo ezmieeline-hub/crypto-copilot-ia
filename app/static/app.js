@@ -73,15 +73,20 @@ $('analysisGrid').innerHTML = `
       const strengthsHtml = sq.strengths.map(s => `<li class="ok">✔ ${s}</li>`).join('');
       const weaknessesHtml = sq.weaknesses.map(w => `<li class="ko">✖ ${w}</li>`).join('');
 
-      $('setupQuality').innerHTML = `
-        <h3>Qualité du setup</h3>
-        <div class="quality-score">
-          <span class="quality-stars">${starsFull}${starsEmpty}</span>
-          <span class="quality-number">${sq.score}/100</span>
-        </div>
-        <ul class="quality-checklist">${strengthsHtml}</ul>
-        ${weaknessesHtml ? `<h3>Faiblesse${sq.weaknesses.length > 1 ? 's' : ''}</h3><ul class="quality-checklist">${weaknessesHtml}</ul>` : ''}
-      `;
+const reasonsText = (d.analysis.decision.reasons || []).join(' ');
+
+const reasonsText = (d.analysis.decision.reasons || []).join(' ');
+
+$('setupQuality').innerHTML = `
+  ${reasonsText ? `<h3>Pourquoi ?</h3><p class="why-text">${reasonsText}</p>` : ''}
+  <h3>Qualité du setup</h3>
+  <div class="quality-score">
+    <span class="quality-stars">${starsFull}${starsEmpty}</span>
+    <span class="quality-number">${sq.score}/100</span>
+  </div>
+  <ul class="quality-checklist">${strengthsHtml}</ul>
+  ${weaknessesHtml ? `<h3>Faiblesse${sq.weaknesses.length > 1 ? 's' : ''}</h3><ul class="quality-checklist">${weaknessesHtml}</ul>` : ''}
+`;
     } else {
       $('setupQuality').innerHTML = '';
     }
