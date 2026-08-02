@@ -627,10 +627,16 @@ def extract_market_structure(
     vision: dict,
 ) -> dict:
 
+    if vision is None:
+        vision = {}
+
     structure = vision.get(
         "market_structure",
         {},
     )
+
+    if structure is None:
+        structure = {}
 
     return {
 
