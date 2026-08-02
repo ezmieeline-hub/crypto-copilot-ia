@@ -757,6 +757,12 @@ async def build_analysis_context(
         interval,
     )
 
+    print("MARKET =", market)
+
+    if market is None:
+        raise Exception(
+            "build_market_context() retourne None"
+        )
     if image_bytes is not None and mime_type is not None:
         raw_vision = await build_vision_context(
             image_bytes=image_bytes,
