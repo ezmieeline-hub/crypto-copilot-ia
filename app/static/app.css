@@ -40,3 +40,5 @@ button{background:#2f80ed;border:0;color:white;padding:12px 18px;border-radius:1
 .quality-checklist li.ok{color:#5be49b}
 .quality-checklist li.ko{color:#ff6b6b}
 .why-text{color:#c7d2e0;line-height:1.5;margin:0 0 14px}
+.pos{color:#5be49b}
+.neg{color:#ff6b6b}
