@@ -16,6 +16,7 @@ async function refreshSession(){
     loadHistory();
     loadAlerts();
     loadJournal();
+    loadDashboard();
   }catch{
     $('authCard').classList.remove('hidden');
     $('dashboard').classList.add('hidden');
@@ -200,6 +201,22 @@ async function loadJournal(){
     `).join('') : 'Aucune entrée.';
   }catch(e){ $('journalList').textContent = e.message; }
 }
+async function loadDashboard(){
+  try{
+    const d = await api('/api/dashboard');
+    $('dashboardGrid').innerHTML = `
+      <div><span>📈 Analyses totales</span><b>${d.total_analyses}</b></div>
+      <div><span>🎯 Taux de réussite</span><b>${d.success_rate}%</b></div>
+      <div><span>💰 Gain théorique cumulé</span><b>${d.cumulative_gain > 0 ? '+' : ''}${d.cumulative_gain}%</b></div>
+      <div><span>📊 Crypto la plus rentable</span><b>${d.best_symbol ?? '—'}</b></div>
+      <div><span>📉 Crypto la moins fiable</span><b>${d.worst_symbol ?? '—'}</b></div>
+      <div><span>⭐ Score moyen des setups</span><b>${d.avg_score}</b></div>
+      <div><span>🔥 Meilleur mois</span><b>${d.best_month ?? '—'}</b></div>
+      <div><span>📅 Analyses / jour (moyenne)</span><b>${d.avg_analyses_per_day}</b></div>
+    `;
+  }catch(e){ $('dashboardGrid').textContent = e.message; }
+}
+$('dashboardBtn').onclick = loadDashboard;
 $('journalBtn').onclick = loadJournal;
 function badgeClass(signal){
   if(signal==='ACHAT') return 'achat';
