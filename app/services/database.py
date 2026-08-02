@@ -72,4 +72,16 @@ def init_db():
                 active INTEGER DEFAULT 1
             )"""
         )
+        db.execute(
+            """CREATE TABLE IF NOT EXISTS journal(
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                analysis_id INTEGER REFERENCES analyses(id),
+                symbol TEXT NOT NULL,
+                taken BOOLEAN NOT NULL DEFAULT FALSE,
+                result_percent REAL,
+                comment TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )"""
+        )
         db.commit()
