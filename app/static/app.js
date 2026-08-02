@@ -110,7 +110,36 @@ $('alertBtn').onclick=async()=>{
     loadAlerts();
   }catch(e){message(e.message)}
 };
+$('simBtn').onclick = () => {
+  const entry = parseFloat($('simEntry').value);
+  const stop = parseFloat($('simStop').value);
+  const tp = parseFloat($('simTp').value);
 
+  if (!entry || !stop || !tp) {
+    $('simResult').innerHTML = '<p class="tv-error">Remplissez les 3 champs.</p>';
+    return;
+  }
+
+  const risk = Math.abs(entry - stop);
+  const reward = Math.abs(tp - entry);
+
+  if (risk === 0) {
+    $('simResult').innerHTML = '<p class="tv-error">Le stop ne peut pas être égal à l\'entrée.</p>';
+    return;
+  }
+
+  const lossPct = ((stop - entry) / entry) * 100;
+  const gainPct = ((tp - entry) / entry) * 100;
+  const rr = (reward / risk).toFixed(2);
+
+  $('simResult').innerHTML = `
+    <div class="plan">
+      <div><span>Perte maximale</span><b class="neg">${lossPct.toFixed(2)}%</b></div>
+      <div><span>Gain potentiel</span><b class="pos">${gainPct > 0 ? '+' : ''}${gainPct.toFixed(2)}%</b></div>
+      <div><span>Risk / Reward</span><b>${rr}</b></div>
+    </div>
+  `;
+};
 async function loadAlerts(){
   try{
     const rows=await api('/api/alerts');
