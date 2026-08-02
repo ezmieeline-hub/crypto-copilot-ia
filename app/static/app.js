@@ -15,6 +15,7 @@ async function refreshSession(){
     $('welcome').textContent=`Bienvenue ${u.name} 👋`;
     loadHistory();
     loadAlerts();
+    loadJournal();
   }catch{
     $('authCard').classList.remove('hidden');
     $('dashboard').classList.add('hidden');
@@ -186,7 +187,20 @@ async function loadAlerts(){
     $('alerts').innerHTML=rows.length?rows.map(a=>`<div class="history-row"><b>${a.symbol}</b><span>${a.direction==='above'?'Au-dessus':'En dessous'}</span><span>${a.target_price}</span></div>`).join(''):'Aucune alerte.';
   }catch(e){}
 }
-
+async function loadJournal(){
+  try{
+    const rows = await api('/api/journal');
+    $('journalList').innerHTML = rows.length ? rows.map(r => `
+      <div class="history-row">
+        <b>${r.symbol}</b>
+        <span>${r.taken ? 'Trade pris' : 'Non pris'}</span>
+        <span>${r.result_percent != null ? (r.result_percent > 0 ? '+' : '') + r.result_percent + '%' : '—'}</span>
+        <small>${r.comment || '—'}</small>
+      </div>
+    `).join('') : 'Aucune entrée.';
+  }catch(e){ $('journalList').textContent = e.message; }
+}
+$('journalBtn').onclick = loadJournal;
 function badgeClass(signal){
   if(signal==='ACHAT') return 'achat';
   if(signal==='VENTE') return 'vente';
