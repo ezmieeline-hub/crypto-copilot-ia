@@ -1,5 +1,16 @@
 const $=id=>document.getElementById(id), message=t=>$('message').textContent=t;
-
+let eurRate = null;
+async function getEurRate(){
+  if (eurRate) return eurRate;
+  try {
+    const r = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
+    const d = await r.json();
+    eurRate = d.rates.EUR;
+  } catch(e) {
+    eurRate = 0.92; // taux approximatif de secours si l'API est indisponible
+  }
+  return eurRate;
+}
 async function api(url,o={}){
   const r=await fetch(url,{headers:{'Content-Type':'application/json',...(o.headers||{})},...o});
   const d=await r.json().catch(()=>({}));
