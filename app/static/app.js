@@ -129,6 +129,24 @@ try {
 } catch (e) {
   $('compareBlock').innerHTML = '';
 }
+const news = d.analysis.news;
+if (news) {
+  const headlinesHtml = (news.headlines || [])
+    .map(n => `<li><a href="${n.url}" target="_blank" rel="noopener">${n.title}</a> <small>(${n.source || '—'})</small></li>`)
+    .join('');
+
+  const calendarHtml = (news.calendar || [])
+    .map(e => `<li>${e.title} — prévision : ${e.forecast ?? '—'} (précédent : ${e.previous ?? '—'})</li>`)
+    .join('');
+
+  $('newsBlock').innerHTML = `
+    ${headlinesHtml ? `<h3>Actualités récentes</h3><ul class="quality-checklist">${headlinesHtml}</ul>` : ''}
+    ${calendarHtml ? `<h3>Annonces macro à fort impact (USD)</h3><ul class="quality-checklist">${calendarHtml}</ul>` : ''}
+    ${!headlinesHtml && !calendarHtml ? '<p>Aucune actualité disponible pour le moment.</p>' : ''}
+  `;
+} else {
+  $('newsBlock').innerHTML = '';
+}
 $('journalBlock').innerHTML = `
   <h3>Trade pris ?</h3>
   <div class="analysis-form">
