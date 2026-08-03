@@ -57,16 +57,22 @@ $('analyzeBtn').onclick=async()=>{
     $('analysisTitle').textContent =
     `${d.summary.symbol} — ${d.trade.direction}`;
 
+const hasSignal = d.trade.direction === 'ACHAT' || d.trade.direction === 'VENTE';
+
 $('analysisGrid').innerHTML = `
 <div><span>Prix</span><b>${d.market.price.toLocaleString('fr-FR')} $</b></div>
 <div><span>RSI</span><b>${d.market.rsi ?? '—'}</b></div>
 <div><span>MACD</span><b>${d.market.macd ?? '—'}</b></div>
 <div><span>Tendance</span><b>${d.analysis.decision.trend ?? '—'}</b></div>
 <div><span>Confiance</span><b>${d.analysis.decision.confidence ?? 0}%</b></div>
-<div><span>Entrée</span><b>${d.trade.entry ?? '—'}</b></div>
-<div><span>Stop Loss</span><b>${d.trade.stop_loss ?? '—'}</b></div>
-<div><span>Take Profit</span><b>${d.trade.tp1 ?? '—'}</b></div>
+<div><span>Entrée</span><b>${hasSignal ? (d.trade.entry ?? '—') : '—'}</b></div>
+<div><span>Stop Loss</span><b>${hasSignal ? (d.trade.stop_loss ?? '—') : '—'}</b></div>
+<div><span>Take Profit</span><b>${hasSignal ? (d.trade.tp1 ?? '—') : '—'}</b></div>
 `;
+
+if (!hasSignal) {
+  message('Aucun signal confirmé — pas de plan de trade tant que la décision reste ATTENDRE.');
+}
 
     const sq = d.analysis.setup_quality;
     if (sq) {
