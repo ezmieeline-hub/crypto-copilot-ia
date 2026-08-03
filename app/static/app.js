@@ -91,6 +91,25 @@ $('setupQuality').innerHTML = `
     } else {
       $('setupQuality').innerHTML = '';
     }
+try {
+  const cmp = await api(`/api/compare/${encodeURIComponent(s)}`);
+  if (cmp.available) {
+    const deltaSign = cmp.delta_confidence > 0 ? '+' : '';
+    const changesHtml = cmp.changes.map(c => `<li>${c}</li>`).join('');
+    $('compareBlock').innerHTML = `
+      <h3>Aujourd'hui vs précédente analyse</h3>
+      <div class="quality-score">
+        <span class="quality-number">${cmp.confidence_today}%</span>
+        <span>(précédente : ${cmp.confidence_previous}%, ${deltaSign}${cmp.delta_confidence} pts)</span>
+      </div>
+      ${changesHtml ? `<ul class="quality-checklist">${changesHtml}</ul>` : ''}
+    `;
+  } else {
+    $('compareBlock').innerHTML = `<p>${cmp.message}</p>`;
+  }
+} catch (e) {
+  $('compareBlock').innerHTML = '';
+}
 $('journalBlock').innerHTML = `
   <h3>Trade pris ?</h3>
   <div class="analysis-form">
