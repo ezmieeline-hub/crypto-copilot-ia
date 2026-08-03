@@ -291,6 +291,9 @@ $('tvBtn').onclick=async()=>{
     const d=await r.json();
     if(!r.ok) throw new Error(d.detail||'Erreur');
 
+    const rate = await getEurRate();
+    const fmtEur = (v) => (v===null||v===undefined||v==='') ? '—' : (v * rate).toLocaleString('fr-FR', {maximumFractionDigits: 2}) + ' €';
+
     const patterns=(d.candlestick_patterns||[]).map(p=>`<li>${p}</li>`).join('');
 
     $('tvResult').innerHTML=`
@@ -307,13 +310,13 @@ $('tvBtn').onclick=async()=>{
           <p>${fmt(d.visible_indicators)}</p>
         </div>
         <div class="plan">
-          <div><span>Entrée</span><b>${fmt(d.entry)}</b></div>
-          <div><span>Take profit</span><b>${fmt(d.take_profit)}</b></div>
-          <div><span>Stop-loss</span><b>${fmt(d.stop_loss)}</b></div>
+          <div><span>Entrée</span><b>${fmtEur(d.entry)}</b></div>
+          <div><span>Take profit</span><b>${fmtEur(d.take_profit)}</b></div>
+          <div><span>Stop-loss</span><b>${fmtEur(d.stop_loss)}</b></div>
         </div>
         <div class="plan">
-          <div><span>Support</span><b>${fmt(d.support)}</b></div>
-          <div><span>Résistance</span><b>${fmt(d.resistance)}</b></div>
+          <div><span>Support</span><b>${fmtEur(d.support)}</b></div>
+          <div><span>Résistance</span><b>${fmtEur(d.resistance)}</b></div>
           <div><span>Tendance</span><b>${fmt(d.trend)}</b></div>
         </div>
       </div>`;
