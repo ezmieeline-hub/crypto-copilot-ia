@@ -5,7 +5,8 @@ from datetime import datetime, timezone
 from typing import Any
 
 import traceback
-
+import os
+from app.services.news_service import get_crypto_news, get_economic_calendar
 from app.services.market_data import (
     get_klines,
     compute_rsi,
@@ -2445,6 +2446,7 @@ class ReportBuilder:
         decision: dict,
         trade_manager: dict,
         setup_quality: dict,
+        news: dict,
     ):
 
         self.market = market
@@ -2455,6 +2457,7 @@ class ReportBuilder:
         self.decision = decision
         self.trade_manager = trade_manager
         self.setup_quality = setup_quality
+        self.news = news
 
     # =====================================================
 
@@ -2652,6 +2655,10 @@ class ReportBuilder:
 
                 self.setup_quality,
 
+            "news":
+
+                self.news,
+
         }
 
     # =====================================================
@@ -2843,9 +2850,25 @@ async def analyze_engine(
 
         management = trade_manager.export()
 
-        # ===================================================
+        # ============================================================
+        # NEWS & CALENDRIER ÉCONOMIQUE
+        # ============================================================
+
+        news_headlines = await get_crypto_news(
+            symbol,
+            os.environ.get("CRYPTOPANIC_API_KEY", ""),
+        )
+
+        economic_calendar = await get_economic_calendar()
+
+        news = {
+            "headlines": news_headlines,
+            "calendar": economic_calendar,
+        }
+
+        # ============================================================
         # REPORT
-        # ===================================================
+        # ============================================================
 
         report = ReportBuilder(
             market=market,
@@ -2856,10 +2879,10 @@ async def analyze_engine(
             decision=decision,
             trade_manager=management,
             setup_quality=setup_quality,
+            news=news,
         )
 
         return report.export()
-
     except AnalysisEngineError as exc:
 
         return {
