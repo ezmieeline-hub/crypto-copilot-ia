@@ -11,6 +11,16 @@ async function getEurRate(){
   }
   return eurRate;
 }
+
+async function formatPrice(usdValue){
+  if (usdValue === null || usdValue === undefined || usdValue === '') return '—';
+  const currency = $('currencySelect').value;
+  if (currency === 'USD') {
+    return usdValue.toLocaleString('fr-FR', {maximumFractionDigits: 2}) + ' $';
+  }
+  const rate = await getEurRate();
+  return (usdValue * rate).toLocaleString('fr-FR', {maximumFractionDigits: 2}) + ' €';
+}
 async function api(url,o={}){
   const r=await fetch(url,{headers:{'Content-Type':'application/json',...(o.headers||{})},...o});
   const d=await r.json().catch(()=>({}));
@@ -69,18 +79,20 @@ $('analyzeBtn').onclick=async()=>{
     `${d.summary.symbol} — ${d.trade.direction}`;
 
 const hasSignal = d.trade.direction === 'ACHAT' || d.trade.direction === 'VENTE';
-const rate = await getEurRate();
-const toEur = (usd) => (usd * rate).toLocaleString('fr-FR', {maximumFractionDigits: 2});
+const priceStr = await formatPrice(d.market.price);
+const entryStr = hasSignal ? await formatPrice(d.trade.entry) : '—';
+const stopStr = hasSignal ? await formatPrice(d.trade.stop_loss) : '—';
+const tpStr = hasSignal ? await formatPrice(d.trade.tp1) : '—';
 
 $('analysisGrid').innerHTML = `
-<div><span>Prix</span><b>${toEur(d.market.price)} €</b></div>
+<div><span>Prix</span><b>${priceStr}</b></div>
 <div><span>RSI</span><b>${d.market.rsi ?? '—'}</b></div>
 <div><span>MACD</span><b>${d.market.macd ?? '—'}</b></div>
 <div><span>Tendance</span><b>${d.analysis.decision.trend ?? '—'}</b></div>
 <div><span>Confiance</span><b>${d.analysis.decision.confidence ?? 0}%</b></div>
-<div><span>Entrée</span><b>${hasSignal && d.trade.entry ? toEur(d.trade.entry) + ' €' : '—'}</b></div>
-<div><span>Stop Loss</span><b>${hasSignal && d.trade.stop_loss ? toEur(d.trade.stop_loss) + ' €' : '—'}</b></div>
-<div><span>Take Profit</span><b>${hasSignal && d.trade.tp1 ? toEur(d.trade.tp1) + ' €' : '—'}</b></div>
+<div><span>Entrée</span><b>${entryStr}</b></div>
+<div><span>Stop Loss</span><b>${stopStr}</b></div>
+<div><span>Take Profit</span><b>${tpStr}</b></div>
 `;
 
 if (!hasSignal) {
@@ -309,8 +321,7 @@ $('tvBtn').onclick=async()=>{
     const d=await r.json();
     if(!r.ok) throw new Error(d.detail||'Erreur');
 
-    const rate = await getEurRate();
-    const fmtEur = (v) => (v===null||v===undefined||v==='') ? '—' : (v * rate).toLocaleString('fr-FR', {maximumFractionDigits: 2}) + ' €';
+    const fmtEur = (v) => formatPrice(v);
 
     const patterns=(d.candlestick_patterns||[]).map(p=>`<li>${p}</li>`).join('');
 
@@ -328,13 +339,13 @@ $('tvBtn').onclick=async()=>{
           <p>${fmt(d.visible_indicators)}</p>
         </div>
         <div class="plan">
-          <div><span>Entrée</span><b>${fmtEur(d.entry)}</b></div>
-          <div><span>Take profit</span><b>${fmtEur(d.take_profit)}</b></div>
-          <div><span>Stop-loss</span><b>${fmtEur(d.stop_loss)}</b></div>
+          <div><span>Entrée</span><b>${await fmtEur(d.entry)}</b></div>
+          <div><span>Take profit</span><b>${await fmtEur(d.take_profit)}</b></div>
+          <div><span>Stop-loss</span><b>${await fmtEur(d.stop_loss)}</b></div>
         </div>
         <div class="plan">
-          <div><span>Support</span><b>${fmtEur(d.support)}</b></div>
-          <div><span>Résistance</span><b>${fmtEur(d.resistance)}</b></div>
+          <div><span>Support</span><b>${await fmtEur(d.support)}</b></div>
+          <div><span>Résistance</span><b>${await fmtEur(d.resistance)}</b></div>
           <div><span>Tendance</span><b>${fmt(d.trend)}</b></div>
         </div>
       </div>`;
