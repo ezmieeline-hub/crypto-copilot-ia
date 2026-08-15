@@ -6,7 +6,6 @@ from app.services.analysis_engine import analyze
 from app.services.auth import get_user
 from app.services.database import connect
 from app.services.vision_analysis import VisionAnalysisError, analyze_screenshot
-from app.services.morning_note import generate_morning_note_for_symbol
 
 router = APIRouter(tags=["extras"])
 
@@ -42,22 +41,23 @@ async def tradingview(
     confidence = int(result.get("confidence") or 0)
     record_symbol = symbol.upper().strip() or (result.get("symbol_detected") or "?")
 
+    # ============================================================
+    # MORNING NOTE (GitHub Skill) — utilise symbole détecté si champ vide
+    # ============================================================
+    morning_note_data = None
+    mn_symbol = symbol.strip() or result.get("symbol_detected", "")
+    if mn_symbol:
+        try:
+            morning_note_data = await generate_morning_note_for_symbol(mn_symbol)
+        except Exception:
+            morning_note_data = None
+
     with connect() as db:
         db.execute(
             "INSERT INTO analyses(user_id,symbol,signal,confidence,result_json) VALUES(?,?,?,?,?)",
             (user["id"], record_symbol, signal, confidence, json.dumps(result)),
         )
         db.commit()
-
-    # ============================================================
-    # MORNING NOTE (GitHub Skill)
-    # ============================================================
-    morning_note_data = None
-    if symbol.strip():
-        try:
-            morning_note_data = await generate_morning_note_for_symbol(symbol)
-        except Exception:
-            morning_note_data = None
 
     return {
         "ok": True,
