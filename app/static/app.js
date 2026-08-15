@@ -439,7 +439,53 @@ $('tvBtn').onclick=async()=>{
       </div>`;
     loadHistory();
   }catch(e){
-    $('tvResult').innerHTML=`<p class="tv-error">${e.message}</p>`;
+    $('tvResult').innerHTML=`<p class="tv-error">${e.message}</p>`// Morning Note (TradingView)
+const mn = d.morning_note;
+if (mn) {
+    const biasColor = mn.bias === 'BULL' ? '#22c55e' : mn.bias === 'BEAR' ? '#ef4444' : '#eab308';
+    const bull = mn.bias_scores?.bull || 0;
+    const base = mn.bias_scores?.base || 0;
+    const bear = mn.bias_scores?.bear || 0;
+    
+    const overnightHtml = (mn.overnight_developments || []).map(dev => `
+        <div style="margin:6px 0;padding:8px;background:#1e293b;border-radius:6px;">
+            <strong style="color:#94a3b8;font-size:11px;text-transform:uppercase;">${dev.category}</strong><br>
+            <span style="color:#f8fafc;">${dev.title}</span><br>
+            <span style="color:#cbd5e1;font-size:13px;">📝 ${dev.take}</span>
+        </div>
+    `).join('');
+    
+    const ideasHtml = (mn.trade_ideas || []).map(idea => {
+        const color = idea.direction === 'LONG' ? '#22c55e' : idea.direction === 'SHORT' ? '#ef4444' : '#eab308';
+        return `
+        <div style="margin:6px 0;padding:10px;border-left:3px solid ${color};background:#1e293b;border-radius:0 6px 6px 0;">
+            <strong style="color:${color}">${idea.direction} ${idea.symbol}</strong><br>
+            <span style="color:#f8fafc;font-size:13px;">${idea.thesis}</span><br>
+            <span style="color:#94a3b8;font-size:12px;">🎯 ${idea.catalyst}</span><br>
+            <span style="color:#f87171;font-size:12px;">⚠️ ${idea.risk}</span>
+        </div>
+        `;
+    }).join('');
+    
+    const mnHtml = `
+    <div style="background:#0f172a;border:1px solid #334155;border-radius:12px;padding:16px;margin-top:16px;color:#f8fafc;">
+        <h3 style="margin:0 0 12px 0;font-size:16px;">📰 Morning Note — ${mn.symbol} <span style="font-size:12px;color:#64748b;">${mn.date}</span></h3>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <div style="flex:1;height:8px;background:#1e293b;border-radius:4px;overflow:hidden;display:flex;">
+                <div style="width:${bull}%;background:#22c55e;"></div>
+                <div style="width:${base}%;background:#eab308;"></div>
+                <div style="width:${bear}%;background:#ef4444;"></div>
+            </div>
+            <span style="font-weight:bold;color:${biasColor};font-size:14px;white-space:nowrap;">${mn.bias}</span>
+        </div>
+        ${mn.top_call?.body ? `<div style="padding:12px;background:#1e293b;border-radius:8px;margin-bottom:12px;border-left:3px solid #3b82f6;"><strong style="color:#60a5fa;">🔔 Top Call</strong><p style="margin:6px 0 0 0;color:#cbd5e1;font-size:14px;line-height:1.5;">${mn.top_call.body}</p></div>` : ''}
+        ${overnightHtml ? `<h4 style="margin:16px 0 8px 0;font-size:13px;color:#94a3b8;text-transform:uppercase;">🌙 Développements Overnight</h4>${overnightHtml}` : ''}
+        ${ideasHtml ? `<h4 style="margin:16px 0 8px 0;font-size:13px;color:#94a3b8;text-transform:uppercase;">💡 Trade Ideas</h4>${ideasHtml}` : ''}
+    </div>`;
+    
+    // Ajouter après le résultat TradingView
+    $('tvResult').innerHTML = $('tvResult').innerHTML + mnHtml;
+};
   }
 };
 
