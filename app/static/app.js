@@ -316,7 +316,7 @@ async function loadAnalysisById(id){
 $('clearHistoryBtn').onclick=async()=>{
  if(!confirm("Supprimer tout l'historique ? Cette action est irréversible.")) return;
  try{
-  await api('/api/history',{method:'DELETE'});
+  await fetch('/api/history',{method:'DELETE',credentials:'include'});
   $('history').innerHTML='Aucune analyse.';
   message("Historique supprimé.");
  }catch(e){message(e.message)}
@@ -599,4 +599,5 @@ $('morningNoteBtn').onclick = async () => {
  $('morningNoteCard').classList.add('hidden');
  }
 };
+
 
