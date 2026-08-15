@@ -1,6 +1,7 @@
 <!doctype html><html lang="fr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Crypto Copilot IA</title><link rel="manifest" href="/static/manifest.json"><link rel="stylesheet" href="/static/app.css"></head>
+<title>Crypto Copilot IA</title><link rel="manifest" href="/static/manifest.json"><link rel="stylesheet" href="/static/app.css"><base target="_blank">
+</head>
 <body><main class="shell">
 <header class="hero"><div class="brand">🚀 Crypto Copilot IA</div><h1>Votre analyste crypto personnel</h1></header>
 <section id="authCard" class="card grid">
@@ -28,7 +29,7 @@
 <div id="simResult"></div>
 </section>
 <section class="card"><h2>🔔 Nouvelle alerte</h2><div class="analysis-form"><input id="alertSymbol" value="BTC"><select id="alertDirection"><option value="above">Au-dessus</option><option value="below">En dessous</option></select><input id="alertPrice" type="number" value="120000"><button id="alertBtn">Créer</button></div><div id="alerts"></div></section>
-<section class="card"><div class="row"><h2>Historique</h2><button id="historyBtn" class="secondary">Actualiser</button></div><div id="history"></div></section>
+<section class="card"><div class="row"><h2>Historique</h2><div style="display:flex;gap:8px;"><button id="historyBtn" class="secondary">Actualiser</button><button id="clearHistoryBtn" class="secondary" style="background:#ef4444;color:#fff;border-color:#ef4444;">🗑️ Vider</button></div></div><div id="history"></div></section>
   <section class="card"><div class="row"><h2>📓 Journal de trading</h2><button id="journalBtn" class="secondary">Actualiser</button></div><div id="journalList"></div></section>
   <section class="card"><div class="row"><h2>📊 Tableau de bord</h2><button id="dashboardBtn" class="secondary">Actualiser</button></div><div id="dashboardGrid" class="stats"></div></section>
 </section><p id="message"></p></main><script src="/static/app.js"></script></body></html>
