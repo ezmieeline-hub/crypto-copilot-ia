@@ -6,6 +6,7 @@ from app.services.analysis_engine import analyze
 from app.services.auth import get_user
 from app.services.database import connect
 from app.services.vision_analysis import VisionAnalysisError, analyze_screenshot
+from app.services.morning_note import generate_morning_note_for_symbol
 
 router = APIRouter(tags=["extras"])
 
@@ -48,7 +49,23 @@ async def tradingview(
         )
         db.commit()
 
-    return {"ok": True, "filename": file.filename, "market_data": market_context, **result}
+    # ============================================================
+    # MORNING NOTE (GitHub Skill)
+    # ============================================================
+    morning_note_data = None
+    if symbol.strip():
+        try:
+            morning_note_data = await generate_morning_note_for_symbol(symbol)
+        except Exception:
+            morning_note_data = None
+
+    return {
+        "ok": True,
+        "filename": file.filename,
+        "market_data": market_context,
+        "morning_note": morning_note_data,
+        **result,
+    }
 
 
 @router.get("/alerts")
