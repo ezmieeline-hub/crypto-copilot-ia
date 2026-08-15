@@ -7,6 +7,7 @@ from typing import Any
 import traceback
 import os
 from app.services.news_service import get_crypto_news, get_economic_calendar
+from app.services.morning_note import generate_morning_note_for_symbol
 from app.services.market_data import (
     get_klines,
     compute_rsi,
@@ -2447,6 +2448,7 @@ class ReportBuilder:
         trade_manager: dict,
         setup_quality: dict,
         news: dict,
+        morning_note: dict = None,
     ):
 
         self.market = market
@@ -2458,6 +2460,7 @@ class ReportBuilder:
         self.trade_manager = trade_manager
         self.setup_quality = setup_quality
         self.news = news
+        self.morning_note = morning_note or {}
 
     # =====================================================
 
@@ -2668,6 +2671,10 @@ class ReportBuilder:
         return self.trade_manager
             # =====================================================
 
+    def build_morning_note_section(self):
+
+        return self.morning_note
+
     def export(self):
 
         return {
@@ -2691,6 +2698,10 @@ class ReportBuilder:
             "trade_management":
 
                 self.build_trade_management(),
+
+            "morning_note":
+
+                self.build_morning_note_section(),
 
         }
         # ============================================================
@@ -2867,6 +2878,11 @@ async def analyze_engine(
         }
 
         # ============================================================
+        # MORNING NOTE (GitHub Skill)
+        # ============================================================
+        morning_note_data = await generate_morning_note_for_symbol(symbol)
+
+        # ============================================================
         # REPORT
         # ============================================================
 
@@ -2880,6 +2896,7 @@ async def analyze_engine(
             trade_manager=management,
             setup_quality=setup_quality,
             news=news,
+            morning_note=morning_note_data,
         )
 
         return report.export()
