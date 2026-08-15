@@ -304,6 +304,7 @@ async function loadHistory(){
 }
 
 async function loadAnalysisById(id){
+ window.loadAnalysisById = loadAnalysisById;
  message("Chargement...");
  try{
   const d = await api('/api/history/' + id);
