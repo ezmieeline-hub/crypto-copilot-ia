@@ -44,3 +44,182 @@ button{background:#2f80ed;border:0;color:white;padding:12px 18px;border-radius:1
 .why-text{color:#c7d2e0;line-height:1.5;margin:0 0 14px}
 .pos{color:#5be49b}
 .neg{color:#ff6b6b}
+
+/* ============================================================
+   MORNING NOTE — STYLES
+   ============================================================ */
+
+.mn-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px;
+    color: #f8fafc;
+    margin-top: 16px;
+}
+.mn-card h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.mn-card h3 span {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: normal;
+}
+.mn-card h4 {
+    margin: 16px 0 8px 0;
+    font-size: 13px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Barre de bias */
+.mn-bias-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.mn-bar-track {
+    flex: 1;
+    height: 10px;
+    background: #1e293b;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+}
+.mn-bar-bull { background: #22c55e; transition: width 0.5s ease; }
+.mn-bar-base { background: #eab308; transition: width 0.5s ease; }
+.mn-bar-bear { background: #ef4444; transition: width 0.5s ease; }
+.mn-bias-label {
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* Grille d'indicateurs */
+.mn-indicators {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.mn-ind {
+    background: #1e293b;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+}
+.mn-ind span {
+    display: block;
+    font-size: 10px;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+.mn-ind strong {
+    font-size: 14px;
+    color: #f8fafc;
+}
+
+/* Top Call */
+.mn-topcall {
+    padding: 12px;
+    background: #1e293b;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 3px solid #3b82f6;
+}
+.mn-topcall strong {
+    color: #60a5fa;
+    font-size: 13px;
+}
+.mn-topcall p {
+    margin: 6px 0 0 0;
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Overnight items */
+.mn-item {
+    margin: 6px 0;
+    padding: 10px;
+    background: #1e293b;
+    border-radius: 6px;
+}
+.mn-cat {
+    color: #94a3b8;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+.mn-title {
+    color: #f8fafc;
+    margin: 4px 0;
+    font-size: 13px;
+}
+.mn-take {
+    color: #cbd5e1;
+    font-size: 12px;
+}
+
+/* Events */
+.mn-event {
+    margin: 4px 0;
+    font-size: 13px;
+    color: #cbd5e1;
+    padding: 6px 0;
+    border-bottom: 1px solid #1e293b;
+}
+.mn-event:last-child { border-bottom: none; }
+.mn-event .mn-time {
+    color: #64748b;
+    font-size: 11px;
+}
+.mn-event em {
+    color: #475569;
+    font-size: 11px;
+}
+
+/* Trade Ideas */
+.mn-idea {
+    margin: 8px 0;
+    padding: 12px;
+    border-left: 3px solid;
+    background: #1e293b;
+    border-radius: 0 8px 8px 0;
+}
+.mn-idea strong {
+    font-size: 14px;
+}
+.mn-idea p {
+    margin: 6px 0;
+    color: #f8fafc;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.mn-catalyst {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 6px;
+}
+.mn-risk {
+    font-size: 12px;
+    color: #f87171;
+    margin-top: 4px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .mn-indicators {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
