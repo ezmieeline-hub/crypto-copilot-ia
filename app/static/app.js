@@ -343,7 +343,7 @@ $('simBtn').onclick = () => {
  const reward = Math.abs(tp - entry);
 
  if (risk === 0) {
- $('simResult').innerHTML = '<div class="info-box"><p>Le stop ne peut pas être égal à l'entrée.</p></div>';
+ $('simResult').innerHTML = '<div class="info-box"><p>Le stop ne peut pas être égal à l\'entrée.</p></div>';
  return;
  }
 
