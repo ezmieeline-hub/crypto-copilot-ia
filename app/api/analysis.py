@@ -75,6 +75,12 @@ async def clear_history(session: str | None = Cookie(default=None)):
     if not user:
         raise HTTPException(status_code=401, detail="Connexion requise.")
     with connect() as db:
+        # SUPPRIMER D'ABORD le journal lié (foreign key constraint)
+        db.execute(
+            "DELETE FROM journal WHERE analysis_id IN (SELECT id FROM analyses WHERE user_id=?)",
+            (user["id"],),
+        )
+        # PUIS supprimer les analyses
         db.execute("DELETE FROM analyses WHERE user_id=?", (user["id"],))
         db.commit()
     return {"ok": True, "message": "Historique supprimé."}
