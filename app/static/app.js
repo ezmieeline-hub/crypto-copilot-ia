@@ -624,3 +624,4 @@ $('morningNoteBtn').onclick = async () => {
         message(e.message);
     }
 };
+
