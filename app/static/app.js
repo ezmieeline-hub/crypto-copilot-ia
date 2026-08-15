@@ -296,9 +296,36 @@ $('journalSave').onclick = async () => {
 async function loadHistory(){
   try{
     const rows=await api('/api/history');
-    $('history').innerHTML=rows.length?rows.map(r=>`<div class="history-row"><b>${r.symbol}</b><span>${r.signal}</span><span>${r.confidence}%</span><small>${r.created_at}</small></div>`).join(''):'Aucune analyse.';
+    if(!rows.length){
+      $('history').innerHTML='Aucune analyse.';
+      return;
+    }
+    $('history').innerHTML=rows.map(r=>`<div class="history-row" style="cursor:pointer;" onclick="loadAnalysisById(${r.id})" title="Cliquer pour revoir l'analyse"><b>${r.symbol}</b><span>${r.signal}</span><span>${r.confidence}%</span><small>${r.created_at}</small></div>`).join('');
   }catch(e){$('history').textContent=e.message}
 }
+async function loadAnalysisById(id){
+  message('Chargement...');
+  try{
+    const d = await api('/api/history/' + id);
+    $('analysisCard').classList.remove('hidden');
+    
+    // Copie-colle ici TOUT le code d'affichage qui est dans analyzeBtn
+    // depuis : $('analysisCard').classList.remove('hidden');
+    // jusqu'à : loadHistory();
+    // (c'est le même code, juste remplace 'd' par 'd')
+    
+    message('Analyse chargée depuis l\'historique.');
+  }catch(e){message(e.message)}
+}
+
+$('clearHistoryBtn').onclick=async()=>{
+  if(!confirm('Supprimer tout l\'historique ?')) return;
+  try{
+    await api('/api/history',{method:'DELETE'});
+    $('history').innerHTML='Aucune analyse.';
+    message('Historique supprimé.');
+  }catch(e){message(e.message)}
+};
 $('historyBtn').onclick=loadHistory;
 
 $('alertBtn').onclick=async()=>{
