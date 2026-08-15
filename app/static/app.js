@@ -159,6 +159,94 @@ if (news) {
 } else {
   $('newsBlock').innerHTML = '';
 }
+
+// ============================================================
+// MORNING NOTE (affichage dans l'analyse classique)
+// ============================================================
+const mn = d.morning_note;
+if (mn) {
+    const biasColor = mn.bias === 'BULL' ? '#22c55e' : mn.bias === 'BEAR' ? '#ef4444' : '#eab308';
+    const bullBar = mn.bias_scores?.bull || 0;
+    const baseBar = mn.bias_scores?.base || 0;
+    const bearBar = mn.bias_scores?.bear || 0;
+
+    let overnightHtml = '';
+    if (mn.overnight_developments) {
+        overnightHtml = mn.overnight_developments.map(dev => `
+            <div class="mn-item">
+                <span class="mn-cat">${dev.category}</span>
+                <div class="mn-title">${dev.title}</div>
+                <div class="mn-take">📝 ${dev.take}</div>
+            </div>
+        `).join('');
+    }
+
+    let eventsHtml = '';
+    if (mn.key_events_today) {
+        eventsHtml = mn.key_events_today.map(ev => `
+            <div class="mn-event">
+                <span class="mn-time">${ev.time}</span> — ${ev.title} <em>(${ev.source})</em>
+            </div>
+        `).join('');
+    }
+
+    let ideasHtml = '';
+    if (mn.trade_ideas) {
+        ideasHtml = mn.trade_ideas.map(idea => {
+            const color = idea.direction === 'LONG' ? '#22c55e' : idea.direction === 'SHORT' ? '#ef4444' : '#eab308';
+            return `
+            <div class="mn-idea" style="border-left-color:${color}">
+                <strong style="color:${color}">${idea.direction} ${idea.symbol}</strong>
+                <p>${idea.thesis}</p>
+                <div class="mn-catalyst">🎯 ${idea.catalyst}</div>
+                <div class="mn-risk">⚠️ ${idea.risk}</div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    const topCallHtml = mn.top_call?.body 
+        ? `<div class="mn-topcall"><strong>🔔 Top Call</strong><p>${mn.top_call.body}</p></div>` 
+        : '';
+
+    const ind = mn.indicators || {};
+    const indicatorsHtml = `
+        <div class="mn-indicators">
+            <div class="mn-ind"><span>Prix</span><strong>${ind.price ?? '—'}</strong></div>
+            <div class="mn-ind"><span>24h</span><strong style="color:${(ind.change_24h_pct||0)>0?'#22c55e':'#ef4444'}">${ind.change_24h_pct ?? '—'}%</strong></div>
+            <div class="mn-ind"><span>RSI</span><strong>${ind.rsi_1h ?? '—'}</strong></div>
+            <div class="mn-ind"><span>Vol</span><strong>${ind.volatility_1h ?? '—'}%</strong></div>
+            <div class="mn-ind"><span>BTC Dom</span><strong>${ind.btc_dominance ?? '—'}%</strong></div>
+            <div class="mn-ind"><span>F&G</span><strong>${ind.fear_greed_value ?? '—'}</strong></div>
+            <div class="mn-ind"><span>Funding</span><strong>${ind.funding_rate ? (ind.funding_rate*100).toFixed(4)+'%' : '—'}</strong></div>
+            <div class="mn-ind"><span>Bid/Ask</span><strong>${ind.orderbook_bid_ask_ratio ?? '—'}</strong></div>
+        </div>
+    `;
+
+    $('morningNoteBlock').innerHTML = `
+        <div class="mn-card">
+            <h3>📰 Morning Note — ${mn.symbol} <span>${mn.date}</span></h3>
+
+            <div class="mn-bias-bar">
+                <div class="mn-bar-track">
+                    <div class="mn-bar-bull" style="width:${bullBar}%"></div>
+                    <div class="mn-bar-base" style="width:${baseBar}%"></div>
+                    <div class="mn-bar-bear" style="width:${bearBar}%"></div>
+                </div>
+                <span class="mn-bias-label" style="color:${biasColor}">${mn.bias}</span>
+            </div>
+
+            ${indicatorsHtml}
+            ${topCallHtml}
+
+            ${overnightHtml ? `<h4>🌙 Développements Overnight</h4>${overnightHtml}` : ''}
+            ${eventsHtml ? `<h4>📅 Événements Clés</h4>${eventsHtml}` : ''}
+            ${ideasHtml ? `<h4>💡 Trade Ideas</h4>${ideasHtml}` : ''}
+        </div>
+    `;
+} else {
+    $('morningNoteBlock').innerHTML = '';
+}
 $('journalBlock').innerHTML = `
   <h3>Trade pris ?</h3>
   <div class="analysis-form">
