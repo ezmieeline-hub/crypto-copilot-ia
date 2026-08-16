@@ -1,42 +1,77 @@
 import math
 import statistics
 import httpx
+from app.providers.yahoo_fallback import yf_fallback  # ← AJOUTE CECI
 
 BINANCE_KLINES_URL = "https://data-api.binance.vision/api/v3/klines"
 
-
 # ============================================================
-# BINANCE
+# BINANCE + YAHOO FINANCE FALLBACK
 # ============================================================
 
 async def get_klines(symbol: str, interval: str = "1h", limit: int = 300):
-    pair = symbol.upper().strip().replace("/", "").replace("USDT", "") + "USDT"
+    """
+    Récupère les bougies.
+    Essaie Binance d'abord, fallback Yahoo Finance si échec (ex: XAUUSD).
+    """
+    # ── Essai 1 : Binance ──
+    try:
+        pair = symbol.upper().strip().replace("/", "").replace("USDT", "") + "USDT"
 
-    async with httpx.AsyncClient(timeout=15) as client:
-        r = await client.get(
-            BINANCE_KLINES_URL,
-            params={
-                "symbol": pair,
-                "interval": interval,
-                "limit": limit,
-            },
-        )
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get(
+                BINANCE_KLINES_URL,
+                params={
+                    "symbol": pair,
+                    "interval": interval,
+                    "limit": limit,
+                },
+            )
+            r.raise_for_status()
+            data = r.json()
 
-        r.raise_for_status()
+        return [
+            {
+                "open_time": k[0],
+                "open": float(k[1]),
+                "high": float(k[2]),
+                "low": float(k[3]),
+                "close": float(k[4]),
+                "volume": float(k[5]),
+                "source": "binance",
+            }
+            for k in data
+        ]
 
-        data = r.json()
+    except Exception as e:
+        print(f"[BINANCE FAIL] {symbol}: {e}")
 
-    return [
-        {
-            "open_time": k[0],
-            "open": float(k[1]),
-            "high": float(k[2]),
-            "low": float(k[3]),
-            "close": float(k[4]),
-            "volume": float(k[5]),
-        }
-        for k in data
-    ]
+    # ── Essai 2 : Yahoo Finance fallback ──
+    try:
+        yf_period = "5d" if interval in ["1m", "5m", "15m", "30m"] else \
+                    "3mo" if interval == "1d" else \
+                    "1y" if interval == "1wk" else "1mo"
+
+        df = yf_fallback.get_ohlcv(symbol, period=yf_period, interval=interval)
+        if df is None or df.empty:
+            return None
+
+        return [
+            {
+                "open_time": int(row["timestamp"].timestamp() * 1000),
+                "open": float(row["open"]),
+                "high": float(row["high"]),
+                "low": float(row["low"]),
+                "close": float(row["close"]),
+                "volume": float(row["volume"]),
+                "source": "yahoo_fallback",
+            }
+            for _, row in df.iterrows()
+        ]
+
+    except Exception as e:
+        print(f"[YF FAIL] {symbol}: {e}")
+        return None
 
 
 # ============================================================
@@ -49,7 +84,6 @@ def compute_sma(values, period):
         return None
 
     return round(sum(values[-period:]) / period, 6)
-
 
 def compute_ema(values, period):
 
@@ -66,7 +100,6 @@ def compute_ema(values, period):
 
     return round(ema, 6)
 
-
 def compute_ema_series(values, period):
 
     multiplier = 2 / (period + 1)
@@ -82,7 +115,6 @@ def compute_ema_series(values, period):
         result.append(ema)
 
     return result
-
 
 # ============================================================
 # RSI WILDER
@@ -123,7 +155,6 @@ def compute_rsi(closes, period=14):
     rsi = 100 - (100 / (1 + rs))
 
     return round(rsi, 2)
-
 
 # ============================================================
 # MACD
@@ -171,7 +202,6 @@ def compute_macd(
 
     )
 
-
 # ============================================================
 # EMA UTILITAIRES
 # ============================================================
@@ -180,21 +210,19 @@ def compute_ema20(closes):
 
     return compute_ema(closes, 20)
 
-
 def compute_ema50(closes):
 
     return compute_ema(closes, 50)
-
 
 def compute_ema100(closes):
 
     return compute_ema(closes, 100)
 
-
 def compute_ema200(closes):
 
     return compute_ema(closes, 200)
-    # ============================================================
+
+# ============================================================
 # ATR
 # ============================================================
 
@@ -226,7 +254,6 @@ def compute_atr(klines, period=14):
         atr = ((atr * (period - 1)) + tr) / period
 
     return round(atr, 6)
-
 
 # ============================================================
 # ADX
@@ -297,7 +324,6 @@ def compute_adx(klines, period=14):
 
     return round(sum(dx_values[-period:]) / len(dx_values[-period:]), 2)
 
-
 # ============================================================
 # VOLUME
 # ============================================================
@@ -311,7 +337,6 @@ def compute_average_volume(klines, period=20):
 
     return round(sum(volumes) / period, 2)
 
-
 def compute_relative_volume(klines, period=20):
 
     avg = compute_average_volume(klines, period)
@@ -322,7 +347,6 @@ def compute_relative_volume(klines, period=20):
     current = klines[-1]["volume"]
 
     return round(current / avg, 2)
-
 
 # ============================================================
 # VOLATILITY
@@ -344,7 +368,6 @@ def compute_volatility(closes, period=20):
 
     return round((std / mean) * 100, 2)
 
-
 # ============================================================
 # MOMENTUM
 # ============================================================
@@ -357,7 +380,6 @@ def compute_momentum(closes, period=10):
     momentum = closes[-1] - closes[-1 - period]
 
     return round(momentum, 6)
-
 
 # ============================================================
 # TREND STRENGTH
@@ -405,7 +427,8 @@ def compute_trend_strength(rsi, macd_hist, adx):
         return "Faible"
 
     return "Très faible"
-    # ============================================================
+
+# ============================================================
 # SUPPORT / RESISTANCE
 # ============================================================
 
@@ -421,7 +444,6 @@ def compute_support_resistance(klines, lookback=30):
         round(max(highs), 6),
     )
 
-
 def compute_support_distance(price, support):
 
     if support is None:
@@ -429,14 +451,12 @@ def compute_support_distance(price, support):
 
     return round(((price - support) / price) * 100, 2)
 
-
 def compute_resistance_distance(price, resistance):
 
     if resistance is None:
         return None
 
     return round(((resistance - price) / price) * 100, 2)
-
 
 # ============================================================
 # BREAKOUT
@@ -451,7 +471,6 @@ def detect_breakout(klines, resistance):
 
     return close > resistance
 
-
 def detect_breakdown(klines, support):
 
     if support is None:
@@ -460,7 +479,6 @@ def detect_breakdown(klines, support):
     close = klines[-1]["close"]
 
     return close < support
-
 
 # ============================================================
 # PULLBACK
@@ -479,7 +497,6 @@ def detect_pullback(klines, ema20):
 
     return low <= ema20 + tolerance
 
-
 # ============================================================
 # RISK / REWARD
 # ============================================================
@@ -497,7 +514,6 @@ def compute_risk_reward(entry, stop_loss, take_profit):
         return None
 
     return round(reward / risk, 2)
-
 
 # ============================================================
 # TAKE PROFITS
@@ -526,7 +542,6 @@ def compute_take_profits(entry, atr, direction="LONG"):
         round(tp3, 6),
     )
 
-
 # ============================================================
 # STOP LOSS
 # ============================================================
@@ -540,7 +555,6 @@ def compute_stop_loss(entry, atr, direction="LONG"):
         return round(entry - atr * 1.5, 6)
 
     return round(entry + atr * 1.5, 6)
-
 
 # ============================================================
 # POSITION SIZE
@@ -561,7 +575,6 @@ def compute_position_size(balance, risk_percent, entry, stop_loss):
     size = risk_amount / stop_distance
 
     return round(size, 4)
-
 
 # ============================================================
 # MARKET SCORE
@@ -603,7 +616,6 @@ def compute_market_score(
             score -= 5
 
     return max(0, min(100, int(score)))
-
 
 # ============================================================
 # MARKET SUMMARY
