@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from app.routers import market
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -14,6 +15,7 @@ from app.api.compare import router as compare_router
 from app.api.morning_note import router as morning_note_router
 
 app = FastAPI(title="Crypto Copilot IA V5", version="5.0.0")
+app.include_router(market.router)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
